@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse Engine - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<style>
+:root {
+    --bg-main: #f4f6f8;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --online-indicator: #22c55e;
+}
+
+[data-theme="dark"] {
+    --bg-main: #0f172a;
+    --bg-card: #1e293b;
+    --border-color: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, sans-serif;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-card);
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-bar {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-main);
+    color: var(--text-main);
+    width: 240px;
+}
+
+.nav-middle {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-icon {
+    font-size: 1.4rem;
+    text-decoration: none;
+    padding: 8px 24px;
+    border-radius: 8px;
+    color: var(--text-muted);
+}
+
+.nav-icon.active {
+    color: var(--accent);
+    background: var(--bg-main);
+}
+
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+/* Structural Layouts */
+.app-container {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 24px;
+    max-width: 1440px;
+    margin: 24px auto;
+    padding: 0 24px;
+}
+
+.single-column-layout {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: 0 24px;
+}
+
+/* Reusable Component Cards */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+/* Sidebar Utilities */
+.menu-list {
+    list-style: none;
+}
+
+.menu-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    color: var(--text-main);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.menu-item a:hover {
+    background: var(--border-color);
+}
+
+/* Interactive Post Creator */
+.publisher-textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-main);
+    color: var(--text-main);
+    border-radius: 8px;
+    padding: 12px;
+    resize: none;
+    margin-bottom: 12px;
+}
+
+.publisher-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-label {
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.action-btn {
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    background: var(--accent-hover);
+}
+
+/* Post Cards */
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.author-info h4 {
+    font-size: 1rem;
+}
+
+.author-info span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.post-text {
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.preview-img-slot img {
+    width: 100%;
+    max-height: 360px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.engagement-bar {
+    display: flex;
+    gap: 16px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 12px;
+}
+
+.like-trigger, .comment-trigger {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.like-trigger.liked {
+    color: var(--accent);
+}
+
+/* Messengers & Lists */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--online-indicator);
+    margin-right: 8px;
+}
+
+.chat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Modal Windows */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-card {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+}
+
+/* Grid Boards */
+.board-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+</style>
+<body>
+
+    <!-- Context Navbar Global Header -->
+    <header class="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="logo">Synapse</a>
+            <div class="search-wrapper">
+                <input type="text" placeholder="Search parameters..." class="search-bar">
+            </div>
+        </div>
+        <div class="nav-middle">
+            <a href="index.html" class="nav-icon active">🏠</a>
+            <a href="groups.html" class="nav-icon">👥</a>
+            <a href="messages.html" class="nav-icon">💬</a>
+        </div>
+        <div class="nav-right">
+            <button class="theme-toggle-btn" id="themeToggle" onclick="toggleThemeSystem()">🌙</button>
+            <strong style="font-size: 0.9rem;">Morgan A.</strong>
+        </div>
+    </header>
+
+    <!-- Structural App Assembly Matrix -->
+    <div class="app-container">
+        
+        <!-- Navigation Dashboard Sideboard Left -->
+        <aside class="left-pane">
+            <div class="card">
+                <ul class="menu-list">
+                    <li class="menu-item"><a href="index.html">🌐 Operational Stream</a></li>
+                    <li class="menu-item"><a href="groups.html">👥 Shared Clusters</a></li>
+                    <li class="menu-item"><a href="messages.html">📬 Communications Vault</a></li>
+                    <li class="menu-item"><a href="#" onclick="openConfigModal()">🛠️ Core Matrix Prefs</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Primary Center Post Injection Segment -->
+        <main class="center-feed">
+            
+            <!-- Live Engine Feed Publisher Interface -->
+            <div class="card">
+                <textarea id="feedInput" class="publisher-textarea" placeholder="Compile new raw logs into the synchronized global stream..."></textarea>
+                <div class="publisher-actions">
+                    <label class="file-label">
+                        📷 Attach Simulation Frame
+                        <input type="file" id="imageAttachment" style="display: none;" onchange="handleFilePreview(this)">
+                    </label>
+                    <span id="fileIndicator" style="font-size:0.8rem; color:var(--text-muted)"></span>
+                    <button class="action-btn" onclick="executePostPublish()">Transmit Node</button>
+                </div>
+            </div>
+
+            <!-- Global Variable Streams Output Target Container -->
+            <div id="dynamicFeedStream">
+                <!-- Anchor Standard Node Card Template -->
+                <div class="card">
+                    <div class="post-meta">
+                        <div class="author-info">
+                            <h4>Cassandra Vance</h4>
+                            <span>Dynamic Broadcast · 4m ago</span>
+                        </div>
+                    </div>
+                    <p class="post-text">System telemetry indicates high structural integrity. The decoupled rendering trees are parsing without blocking runtime event vectors.</p>
+                    <div class="engagement-bar">
+                        <button class="like-trigger" onclick="toggleLikeVector(this)">👍 Like (<span class="count">42</span>)</button>
+                        <button class="comment-trigger">💬 Read Trace logs</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Right System Monitor Control Bar Area -->
+        <aside class="right-pane">
+            <div class="card">
+                <h4 style="margin-bottom: 12px;">Active Signal Nodes</h4>
+                <div class="chat-row"><span class="status-indicator"></span> Nexus-Node-Alpha</div>
+                <div class="chat-row"><span class="status-indicator"></span> Operator-71-Beta</div>
+                <div class="chat-row"><span class="status-indicator"></span> Crypt-Dev-Proxy</div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Configuration Trigger Overlay Modal Matrix -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal-card">
+            <h3 style="margin-bottom:12px;">Node Properties Configuration</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">Adjust client runtime rendering attributes.</p>
+            <label style="display:block; margin-bottom:12px;">
+                <input type="checkbox" id="prefHighPerf"> Enforce Low Latency Refresh Layout
+            </label>
+            <button class="action-btn" onclick="closeConfigModal()">Commit Diagnostics</button>
+        </div>
+    </div>
+
+    <!-- Core Runtime Execution Scripts Document Engine Object -->
+    <script>
+        let transientImgData = "";
+
+        // Dark/Light Global state management
+        function toggleThemeSystem() {
+            const root = document.documentElement;
+            const currentTheme = root.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', targetTheme);
+            document.getElementById('themeToggle').innerText = targetTheme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('synapse-theme', targetTheme);
+        }
+
+        // Persistent validation checks
+        window.addEventListener('DOMContentLoaded', () => {
+            const stored = localStorage.getItem('synapse-theme');
+            if (stored === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeToggle').innerText = '☀️';
+            }
+        });
+
+        // Frame Capture Pipeline Mock Reader
+        function handleFilePreview(input) {
+            if(input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    transientImgData = e.target.result;
+                    document.getElementById('fileIndicator').innerText = "✓ Attached Layer Buffer";
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Live DOM Element Insertion Block
+        function executePostPublish() {
+            const rawText = document.getElementById('feedInput').value.trim();
+            if(!rawText && !transientImgData) return alert("System Buffer clear. Insert string content matrix.");
+
+            const stream = document.getElementById('dynamicFeedStream');
+            const blockNode = document.createElement('div');
+            blockNode.className = "card";
+
+            let mediaMarkup = transientImgData ? `<div class="preview-img-slot"><img src="${transientImgData}"/></div>` : '';
+
+            blockNode.innerHTML = `
+                <div class="post-meta">
+                    <div class="author-info">
+                        <h4>Morgan A. (You)</h4>
+                        <span>Broadcast Node · Active Just Now</span>
+                    </div>
+                </div>
+                <p class="post-text">${escapeHtml(rawText)}</p>
+                ${mediaMarkup}
+                <div class="engagement-bar">
+                    <button class="like-trigger" onclick="toggleLikeVector(this)">👍 Like (<span class="count">0</span>)</button>
+                    <button class="comment-trigger">💬 Read Trace logs</button>
+                </div>
+            `;
+
+            stream.insertBefore(blockNode, stream.firstChild);
+            // Flash Clean Reset fields
+            document.getElementById('feedInput').value = "";
+            document.getElementById('imageAttachment').value = "";
+            document.getElementById('fileIndicator').innerText = "";
+            transientImgData = "";
+        }
+
+        function toggleLikeVector(button) {
+            const display = button.querySelector('.count');
+            let countVal = parseInt(display.innerText);
+            if(button.classList.contains('liked')) {
+                button.classList.remove('liked');
+                display.innerText = countVal - 1;
+            } else {
+                button.classList.add('liked');
+                display.innerText = countVal + 1;
+            }
+        }
+
+        function openConfigModal() { document.getElementById('configModal').style.display = 'flex'; }
+        function closeConfigModal() { document.getElementById('configModal').style.display = 'none'; }
+        function escapeHtml(str) { return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    </script>
+</body>
+</html>
